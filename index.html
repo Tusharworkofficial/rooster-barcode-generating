@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Pro</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <!-- QuaggaJS -->
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- XLSX for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- QRCode.js for QR code generation -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FEF7E5;
+            color: #000000;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #000000;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1030;
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #FEF7E5 !important;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i {
+            margin-right: 10px;
+            color: #C5362F;
+        }
+        .nav-link {
+            color: #FEF7E5 !important;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.5rem 1.2rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #C5362F !important;
+            transform: translateY(-2px);
+        }
+        .navbar-toggler {
+            border: none;
+            outline: none;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23FEF7E5' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+        .hero {
+            background: url('https://via.placeholder.com/1920x600?text=Barcode+Hero+Image') no-repeat center center;
+            background-size: cover;
+            color: #FEF7E5;
+            padding: 120px 0;
+            margin-top: 55px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            animation: fadeInDown 1s ease-out;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 35px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+        .hero .btn {
+            background-color: #C5362F;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(197, 54, 47, 0.5);
+            opacity: 0;
+            animation: fadeInUp 1.5s ease-out forwards;
+            animation-delay: 1s;
+            color: #FEF7E5;
+        }
+        .hero .btn:hover {
+            background-color: #FEF7E5;
+            color: #C5362F;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(254, 247, 229, 0.7);
+        }
+        .features {
+            padding: 60px 0;
+            background-color: #FEF7E5;
+        }
+        .feature-item {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #FFFFFF;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(197, 54, 47, 0.3);
+        }
+        .feature-item i {
+            font-size: 3.5rem;
+            color: #C5362F;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+        }
+        .feature-item:hover i {
+            color: #000000;
+        }
+        .how-it-works {
+            padding: 60px 0;
+            background-color: #FEF7E5;
+        }
+        .how-it-works h2 {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        .how-it-works h2::after {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: #C5362F;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .step {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #FFFFFF;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: slideIn 0.8s ease-out forwards;
+        }
+        .step:nth-child(1) { animation-delay: 0.2s; }
+        .step:nth-child(2) { animation-delay: 0.4s; }
+        .step:nth-child(3) { animation-delay: 0.6s; }
+        .step:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(197, 54, 47, 0.2);
+        }
+        .benefits {
+            padding: 60px 0;
+            background-color: #FEF7E5;
+        }
+        .benefits h3 {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .benefits h3::after {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: #C5362F;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .card {
+            background: #FEF7E5;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 55px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(197, 54, 47, 0.2);
+        }
+        h2, h3 {
+            color: #000000;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+        }
+        h3::after {
+            content: '';
+            width: 40px;
+            height: 3px;
+            background: #C5362F;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .btn-custom {
+            background-color: #000000;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #FEF7E5;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        .btn-custom:hover {
+            background-color: #C5362F;
+            color: #FEF7E5;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(197, 54, 47, 0.6);
+        }
+        .btn-secondary-custom {
+            background-color: #000000;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: #FEF7E5;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        .btn-secondary-custom:hover {
+            background-color: #C5362F;
+            color: #FEF7E5;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(197, 54, 47, 0.6);
+        }
+        .btn-action {
+            border-radius: 15px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+        .btn-warning-custom {
+            background-color: #000000;
+            border: none;
+            color: #FEF7E5;
+        }
+        .btn-danger-custom {
+            background-color: #C5362F;
+            border: none;
+            color: #FEF7E5;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(197, 54, 47, 0.4);
+        }
+        .btn-danger-custom:hover {
+            background-color: #000000;
+            color: #FEF7E5;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #000000;
+            padding: 12px;
+            transition: all 0.3s ease;
+            background: #FFFFFF;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .form-control:focus {
+            border-color: #C5362F;
+            box-shadow: 0 0 8px rgba(197, 54, 47, 0.5);
+        }
+        #barcode, #qrcode {
+            margin-top: 30px;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+        .code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+        .code-container svg, .code-container canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .code-container .btn-secondary-custom {
+            margin-top: 15px;
+            width: 150px;
+        }
+        #scanner-container {
+            width: 100%;
+            height: 400px;
+            background: #000000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+        #scanner-container:hover {
+            box-shadow: 0 15px 40px rgba(197, 54, 47, 0.3);
+        }
+        #material-details {
+            margin-top: 20px;
+            padding: 20px;
+            background: #FFFFFF;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: bounceIn 0.8s ease-out;
+        }
+        #scanned-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .table {
+            margin-top: 25px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: #FFFFFF;
+        }
+        .table thead th {
+            background-color: #000000;
+            color: #FEF7E5;
+            border: none;
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .table tbody tr {
+            transition: all 0.3s ease;
+            background-color: #FEF7E5;
+        }
+        .table tbody tr:hover {
+            background-color: #C5362F;
+            color: #FEF7E5;
+            transform: translateY(-2px);
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #FFFFFF;
+        }
+        footer {
+            background-color: #000000;
+            color: #FEF7E5;
+            padding: 3rem 2rem;
+            margin-top: 50px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        }
+        footer .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        footer .footer-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #FEF7E5;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        footer .footer-brand i {
+            margin-right: 10px;
+            color: #C5362F;
+        }
+        footer .footer-links, footer .footer-contact {
+            flex: 1;
+            min-width: 200px;
+            margin: 0 1rem;
+        }
+        footer h5 {
+            color: #FEF7E5;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        footer a {
+            color: #FEF7E5;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.75rem;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: #C5362F;
+        }
+        footer .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+        }
+        .modal-content {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background-color: #FEF7E5;
+        }
+        .modal-header {
+            background-color: #000000;
+            color: #FEF7E5;
+            border-bottom: none;
+            border-radius: 15px 15px 0 0;
+        }
+        .modal-title {
+            font-weight: 600;
+        }
+        .inventory-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        #search-inventory {
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+            margin: 0;
+        }
+        .export-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .export-buttons .btn-custom, .export-buttons .btn-danger-custom {
+            margin: 0;
+        }
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: #FEF7E5;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        #chatbot-header {
+            background-color: #000000;
+            color: #FEF7E5;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #C5362F;
+        }
+        #chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #FFFFFF;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #000000;
+            color: #FEF7E5;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .bot-message {
+            background: #FEF7E5;
+            color: #000000;
+            border: 1px solid #000000;
+            align-self: flex-start;
+        }
+        #chatbot-input-area {
+            display: flex;
+            padding: 10px;
+            background: #FEF7E5;
+            border-top: 1px solid #000000;
+        }
+        #chatbot-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            outline: none;
+            background: #FFFFFF;
+        }
+        #chatbot-input:focus {
+            border-color: #C5362F;
+            box-shadow: 0 0 5px rgba(197, 54, 47, 0.5);
+        }
+        #chatbot-send {
+            background-color: #C5362F;
+            color: #FEF7E5;
+            border: none;
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #chatbot-send:hover {
+            background-color: #000000;
+        }
+        #chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #C5362F;
+            color: #FEF7E5;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(197, 54, 47, 0.4);
+            cursor: pointer;
+            z-index: 1001;
+            transition: transform 0.3s ease;
+        }
+        #chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+        #chatbot-container.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#"><i class="fas fa-box-open"></i> Inventory Pro</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#generate">Generate</a></li>
+                <li class="nav-item"><a class="nav-link" href="#scan">Scan</a></li>
+                <li class="nav-item"><a class="nav-link" href="#inventory">Inventory</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="container mt-5 pt-5">
+        <!-- Dynamic content will be loaded here -->
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <i class="fas fa-box-open"></i> Inventory Pro
+            </div>
+            <div class="footer-links">
+                <h5>Quick Links</h5>
+                <a href="#home">Home</a>
+                <a href="#generate">Generate Barcode & QR</a>
+                <a href="#scan">Scan Barcode</a>
+                <a href="#inventory">Inventory List</a>
+            </div>
+            <div class="footer-contact">
+                <h5>Contact Us</h5>
+                <a href="mailto:support@inventorypro.com">support@inventorypro.com</a>
+                <a href="tel:+1234567890">+1 (234) 567-890</a>
+                <a href="#">123 Business St, Tech City</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Inventory Pro. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Material</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-form">
+                        <div class="form-group">
+                            <label>Material ID</label>
+                            <input type="text" class="form-control" id="edit_material_id" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Material Name</label>
+                            <input type="text" class="form-control" id="edit_material_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="date" class="form-control" id="edit_expiry_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Batch Number</label>
+                            <input type="text" class="form-control" id="edit_batch_number" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Supplier Details</label>
+                            <input type="text" class="form-control" id="edit_supplier_details" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary-custom" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-custom" id="save-changes">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Interface -->
+    <button id="chatbot-toggle" title="Chat with Inventory Assistant"><i class="fas fa-robot"></i></button>
+    <div id="chatbot-container" class="hidden">
+        <div id="chatbot-header">Inventory Assistant</div>
+        <div id="chatbot-messages"></div>
+        <div id="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Ask about inventory...">
+            <button id="chatbot-send">Send</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries and Custom Script -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // IndexedDB Setup
+        let db;
+        const request = indexedDB.open("inventoryDB", 1);
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            db.createObjectStore("materials", { keyPath: "material_id" });
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadSection('home');
+        };
+
+        request.onerror = function(event) {
+            alert("Database error: " + event.target.errorCode);
+        };
+
+        // Database Functions
+        function addMaterial(material) {
+            const transaction = db.transaction(["materials"], "readwrite");
+            const objectStore = transaction.objectStore("materials");
+            const request = objectStore.add(material);
+            request.onsuccess = () => console.log("Material added");
+            request.onerror = () => console.log("Error adding material");
+        }
+
+        function getMaterial(material_id, callback) {
+            const transaction = db.transaction(["materials"], "readonly");
+            const objectStore = transaction.objectStore("materials");
+            const request = objectStore.get(material_id);
+            request.onsuccess = () => callback(request.result);
+        }
+
+        function getAllMaterials(callback) {
+            const transaction = db.transaction(["materials"], "readonly");
+            const objectStore = transaction.objectStore("materials");
+            const request = objectStore.getAll();
+            request.onsuccess = () => callback(request.result);
+        }
+
+        function updateMaterial(material) {
+            const transaction = db.transaction(["materials"], "readwrite");
+            const objectStore = transaction.objectStore("materials");
+            const request = objectStore.put(material);
+            request.onsuccess = () => console.log("Material updated");
+        }
+
+        function deleteMaterial(material_id) {
+            const transaction = db.transaction(["materials"], "readwrite");
+            const objectStore = transaction.objectStore("materials");
+            const request = objectStore.delete(material_id);
+            request.onsuccess = () => loadSection('inventory');
+        }
+
+        function deleteAllMaterials() {
+            const transaction = db.transaction(["materials"], "readwrite");
+            const objectStore = transaction.objectStore("materials");
+            const request = objectStore.clear();
+            request.onsuccess = () => loadSection('inventory');
+        }
+
+        // Navigation Handler
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('href').substring(1);
+                loadSection(section);
+            });
+        });
+
+        // Load Section Function
+        function loadSection(section) {
+            const mainContent = document.getElementById("main-content");
+            switch (section) {
+                case 'home':
+                    mainContent.innerHTML = `
+                        <section class="hero">
+                            <div class="hero-content">
+                                <h1>Streamline Your Inventory Management with Barcodes</h1>
+                                <p>Generate, scan, and manage your inventory effortlessly with our powerful barcode solution.</p>
+                                <a href="#generate" class="btn btn-primary">Get Started</a>
+                            </div>
+                        </section>
+                        <section class="features">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-4 feature-item">
+                                        <i class="fas fa-barcode"></i>
+                                        <h4>Generate Barcodes</h4>
+                                        <p>Create custom barcodes for your materials.</p>
+                                    </div>
+                                    <div class="col-md-4 feature-item">
+                                        <i class="fas fa-qrcode"></i>
+                                        <h4>Scan Barcodes</h4>
+                                        <p>Quickly scan and retrieve material details.</p>
+                                    </div>
+                                    <div class="col-md-4 feature-item">
+                                        <i class="fas fa-list-alt"></i>
+                                        <h4>Manage Inventory</h4>
+                                        <p>Keep track of your stock with ease.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="how-it-works">
+                            <div class="container">
+                                <h2 class="text-center">How It Works</h2>
+                                <div class="row">
+                                    <div class="col-md-4 step">
+                                        <i class="fas fa-pencil-alt fa-3x"></i>
+                                        <h5>1. Enter Material Details</h5>
+                                        <p>Input your material's information.</p>
+                                    </div>
+                                    <div class="col-md-4 step">
+                                        <i class="fas fa-barcode fa-3x"></i>
+                                        <h5>2. Generate Barcode</h5>
+                                        <p>Create a unique barcode for each item.</p>
+                                    </div>
+                                    <div class="col-md-4 step">
+                                        <i class="fas fa-search fa-3x"></i>
+                                        <h5>3. Scan to Manage Inventory</h5>
+                                        <p>Scan barcodes to update and track your stock.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="benefits">
+                            <div class="container">
+                                <h3>Why Choose Inventory Pro?</h3>
+                                <p class="text-center">Save time, reduce errors, and improve efficiency with our barcode solution.</p>
+                            </div>
+                        </section>
+                    `;
+                    break;
+                case 'generate':
+                    mainContent.innerHTML = `
+                        <div class="card">
+                            <h3>Generate Barcode & QR Code</h3>
+                            <form id="generate-form" class="mt-4">
+                                <div class="form-group">
+                                    <label>Material ID</label>
+                                    <input type="text" class="form-control" id="material_id" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Material Name</label>
+                                    <input type="text" class="form-control" id="material_name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Expiry Date</label>
+                                    <input type="date" class="form-control" id="expiry_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Batch Number</label>
+                                    <input type="text" class="form-control" id="batch_number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Supplier Details</label>
+                                    <input type="text" class="form-control" id="supplier_details" required>
+                                </div>
+                                <button type="submit" class="btn btn-custom">Generate</button>
+                            </form>
+                            <div class="row mt-4">
+                                <div class="col-md-6 code-container">
+                                    <div id="barcode"></div>
+                                    <button class="btn btn-secondary-custom" id="print-barcode-btn" style="display:none;" onclick="printBarcode()">Print Barcode</button>
+                                </div>
+                                <div class="col-md-6 code-container">
+                                    <div id="qrcode"></div>
+                                    <button class="btn btn-secondary-custom" id="print-qrcode-btn" style="display:none;" onclick="printQRCode()">Print QR Code</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById("generate-form").addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        const material = {
+                            material_id: document.getElementById("material_id").value,
+                            material_name: document.getElementById("material_name").value,
+                            expiry_date: document.getElementById("expiry_date").value,
+                            batch_number: document.getElementById("batch_number").value,
+                            supplier_details: document.getElementById("supplier_details").value
+                        };
+                        getMaterial(material.material_id, (existing) => {
+                            if (existing) {
+                                alert("Material ID already exists!");
+                            } else {
+                                addMaterial(material);
+                                generateBarcode(material.material_id);
+                                generateQRCode(material);
+                                document.getElementById("print-barcode-btn").style.display = "block";
+                                document.getElementById("print-qrcode-btn").style.display = "block";
+                                document.getElementById("generate-form").reset();
+                            }
+                        });
+                    });
+                    break;
+                case 'scan':
+                    mainContent.innerHTML = `
+                        <div class="card">
+                            <h3>Scan Barcode</h3>
+                            <div class="mt-4">
+                                <button class="btn btn-custom mr-2" onclick="startMobileScanning()">Mobile Scanner</button>
+                                <label class="btn btn-custom">
+                                    Upload File <input type="file" id="barcode-upload" accept="image/*" hidden onchange="uploadAndScan(event)">
+                                </label>
+                            </div>
+                            <div id="scanner-container"></div>
+                            <img id="scanned-image" src="" alt="" style="display:none;">
+                            <div id="material-details"></div>
+                        </div>
+                    `;
+                    break;
+                case 'inventory':
+                    mainContent.innerHTML = `
+                        <div class="card">
+                            <h3>Inventory List</h3>
+                            <p class="text-center mt-3">View and manage all stored materials below.</p>
+                            <div class="inventory-controls">
+                                <input type="text" id="search-inventory" class="form-control" placeholder="Search by Material ID or Name">
+                                <div class="export-buttons">
+                                    <button class="btn btn-custom" onclick="exportToCSV()">Export CSV</button>
+                                    <button class="btn btn-custom" onclick="exportToExcel()">Export Excel</button>
+                                    <button class="btn btn-custom" onclick="exportToPDF()">Export PDF</button>
+                                    <button class="btn btn-custom" onclick="exportToWord()">Export Word</button>
+                                    <button class="btn btn-danger-custom" onclick="deleteAllConfirm()">Delete All</button>
+                                </div>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Material ID</th>
+                                        <th>Name</th>
+                                        <th>Expiry Date</th>
+                                        <th>Batch No</th>
+                                        <th>Supplier</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table"></tbody>
+                            </table>
+                        </div>
+                    `;
+                    loadInventoryTable();
+                    document.getElementById("search-inventory").addEventListener("input", filterInventory);
+                    break;
+            }
+        }
+
+        // Load Inventory Table
+        function loadInventoryTable(materials = null) {
+            getAllMaterials((allMaterials) => {
+                const tbody = document.getElementById("inventory-table");
+                const filteredMaterials = materials || allMaterials;
+                tbody.innerHTML = filteredMaterials.length ? '' : '<tr><td colspan="6">No materials found.</td></tr>';
+                filteredMaterials.forEach(material => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${material.material_id}</td>
+                            <td>${material.material_name}</td>
+                            <td>${material.expiry_date}</td>
+                            <td>${material.batch_number}</td>
+                            <td>${material.supplier_details}</td>
+                            <td>
+                                <button class="btn btn-action btn-warning-custom mr-2" onclick="editMaterial('${material.material_id}')">Edit</button>
+                                <button class="btn btn-action btn-danger-custom" onclick="deleteMaterialConfirm('${material.material_id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        // Filter Inventory
+        function filterInventory() {
+            const searchValue = document.getElementById("search-inventory").value.toLowerCase();
+            getAllMaterials((materials) => {
+                const filtered = materials.filter(material => 
+                    material.material_id.toLowerCase().includes(searchValue) || 
+                    material.material_name.toLowerCase().includes(searchValue)
+                );
+                loadInventoryTable(filtered);
+            });
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            getAllMaterials((materials) => {
+                if (!materials.length) {
+                    alert("No data to export!");
+                    return;
+                }
+                const csv = materials.map(m => `${m.material_id},${m.material_name},${m.expiry_date},${m.batch_number},${m.supplier_details}`).join('\n');
+                const csvContent = "data:text/csv;charset=utf-8,Material ID,Name,Expiry Date,Batch No,Supplier\n" + csv;
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "inventory.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            getAllMaterials((materials) => {
+                if (!materials.length) {
+                    alert("No data to export!");
+                    return;
+                }
+                const ws = XLSX.utils.json_to_sheet(materials, {
+                    header: ["material_id", "material_name", "expiry_date", "batch_number", "supplier_details"]
+                });
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+                XLSX.writeFile(wb, "inventory.xlsx");
+            });
+        }
+
+        // Export to PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            getAllMaterials((materials) => {
+                if (!materials.length) {
+                    alert("No data to export!");
+                    return;
+                }
+                const doc = new jsPDF();
+                doc.text("Inventory List", 20, 10);
+                doc.autoTable({
+                    startY: 20,
+                    head: [['Material ID', 'Name', 'Expiry Date', 'Batch No', 'Supplier']],
+                    body: materials.map(m => [m.material_id, m.material_name, m.expiry_date, m.batch_number, m.supplier_details])
+                });
+                doc.save("inventory.pdf");
+            });
+        }
+
+        // Export to Word
+        function exportToWord() {
+            getAllMaterials((materials) => {
+                if (!materials.length) {
+                    alert("No data to export!");
+                    return;
+                }
+                const html = `
+                    <html>
+                    <body>
+                        <h1>Inventory List</h1>
+                        <table border="1">
+                            <thead>
+                                <tr>
+                                    <th>Material ID</th>
+                                    <th>Name</th>
+                                    <th>Expiry Date</th>
+                                    <th>Batch No</th>
+                                    <th>Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${materials.map(m => `
+                                    <tr>
+                                        <td>${m.material_id}</td>
+                                        <td>${m.material_name}</td>
+                                        <td>${m.expiry_date}</td>
+                                        <td>${m.batch_number}</td>
+                                        <td>${m.supplier_details}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>
+                `;
+                const blob = new Blob([html], { type: "application/msword" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "inventory.doc";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        // Delete All Confirmation
+        function deleteAllConfirm() {
+            if (confirm("Are you sure you want to delete all materials? This action cannot be undone.")) {
+                deleteAllMaterials();
+            }
+        }
+
+        // Barcode Generation
+        function generateBarcode(material_id) {
+            const barcodeDiv = document.getElementById("barcode");
+            barcodeDiv.innerHTML = '<svg id="barcode-svg"></svg>';
+            JsBarcode("#barcode-svg", material_id, {
+                format: "CODE128",
+                width: 2,
+                height: 100,
+                displayValue: true,
+                background: "#FEF7E5",
+                lineColor: "#000000"
+            });
+        }
+
+        // QR Code Generation
+        function generateQRCode(material) {
+            const qrcodeDiv = document.getElementById("qrcode");
+            qrcodeDiv.innerHTML = '<canvas id="qrcode-canvas"></canvas>';
+            const qrData = JSON.stringify(material);
+            QRCode.toCanvas(document.getElementById("qrcode-canvas"), qrData, {
+                width: 200,
+                height: 200,
+                color: {
+                    dark: "#000000",
+                    light: "#FEF7E5"
+                }
+            }, (error) => {
+                if (error) console.error(error);
+            });
+        }
+
+        // Print Barcode
+        function printBarcode() {
+            const barcodeSvg = document.getElementById("barcode-svg");
+            if (!barcodeSvg) {
+                alert("No barcode to print!");
+                return;
+            }
+            const printWindow = window.open('', '_blank', 'width=300,height=200');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print Barcode</title>
+                    <style>
+                        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+                        svg { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    ${barcodeSvg.outerHTML}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+
+        // Print QR Code
+        function printQRCode() {
+            const qrCanvas = document.getElementById("qrcode-canvas");
+            if (!qrCanvas) {
+                alert("No QR code to print!");
+                return;
+            }
+            const printWindow = window.open('', '_blank', 'width=300,height=300');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print QR Code</title>
+                    <style>
+                        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+                        canvas { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <img src="${qrCanvas.toDataURL('image/png')}" alt="QR Code">
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+
+        // Barcode Scanning - Mobile Scanner
+        function startMobileScanning() {
+            const scannerContainer = document.getElementById("scanner-container");
+            scannerContainer.innerHTML = '<div id="interactive" class="viewport"></div>';
+
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactive'),
+                    constraints: {
+                        width: 640,
+                        height: 480,
+                        facingMode: "environment"
+                    }
+                },
+                decoder: {
+                    readers: ["code_128_reader"]
+                }
+            }, (err) => {
+                if (err) {
+                    alert("Failed to start scanner. Ensure camera permissions are granted and run via localhost.");
+                    console.error(err);
+                    return;
+                }
+                Quagga.start();
+            });
+
+            Quagga.onDetected((result) => {
+                const code = result.codeResult.code;
+                getMaterial(code, (material) => {
+                    if (material) {
+                        displayMaterialDetails(material);
+                        const video = document.querySelector('#interactive video');
+                        if (video) {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                            const scannedImage = document.getElementById("scanned-image");
+                            scannedImage.src = canvas.toDataURL('image/png');
+                            scannedImage.style.display = "block";
+                        }
+                        Quagga.stop();
+                    } else {
+                        alert("Material not found!");
+                    }
+                });
+            });
+        }
+
+        // Barcode Scanning - Upload File
+        function uploadAndScan(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    Quagga.decodeSingle({
+                        src: e.target.result,
+                        numOfWorkers: 0,
+                        inputStream: {
+                            size: 800
+                        },
+                        decoder: {
+                            readers: ["code_128_reader"]
+                        }
+                    }, (result) => {
+                        if (result && result.codeResult) {
+                            const code = result.codeResult.code;
+                            getMaterial(code, (material) => {
+                                if (material) {
+                                    displayMaterialDetails(material);
+                                    const scannedImage = document.getElementById("scanned-image");
+                                    scannedImage.src = e.target.result;
+                                    scannedImage.style.display = "block";
+                                } else {
+                                    alert("Material not found!");
+                                }
+                            });
+                        } else {
+                            alert("No barcode detected in the uploaded image!");
+                        }
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Display Material Details
+        function displayMaterialDetails(material) {
+            document.getElementById("material-details").innerHTML = `
+                <h4>Material Details</h4>
+                <p><strong>ID:</strong> ${material.material_id}</p>
+                <p><strong>Name:</strong> ${material.material_name}</p>
+                <p><strong>Expiry Date:</strong> ${material.expiry_date}</p>
+                <p><strong>Batch No:</strong> ${material.batch_number}</p>
+                <p><strong>Supplier:</strong> ${material.supplier_details}</p>
+            `;
+        }
+
+        // Edit Material
+        function editMaterial(material_id) {
+            getMaterial(material_id, (material) => {
+                if (material) {
+                    document.getElementById("edit_material_id").value = material.material_id;
+                    document.getElementById("edit_material_name").value = material.material_name;
+                    document.getElementById("edit_expiry_date").value = material.expiry_date;
+                    document.getElementById("edit_batch_number").value = material.batch_number;
+                    document.getElementById("edit_supplier_details").value = material.supplier_details;
+                    $('#editModal').modal('show');
+                }
+            });
+        }
+
+        document.getElementById("save-changes").addEventListener("click", () => {
+            const material = {
+                material_id: document.getElementById("edit_material_id").value,
+                material_name: document.getElementById("edit_material_name").value,
+                expiry_date: document.getElementById("edit_expiry_date").value,
+                batch_number: document.getElementById("edit_batch_number").value,
+                supplier_details: document.getElementById("edit_supplier_details").value
+            };
+            updateMaterial(material);
+            $('#editModal').modal('hide');
+            loadSection('inventory');
+        });
+
+        // Delete Material Confirmation
+        function deleteMaterialConfirm(material_id) {
+            if (confirm("Are you sure you want to delete this material?")) {
+                deleteMaterial(material_id);
+            }
+        }
+
+        // Chatbot Functionality
+        const chatbotContainer = document.getElementById("chatbot-container");
+        const chatbotMessages = document.getElementById("chatbot-messages");
+        const chatbotInput = document.getElementById("chatbot-input");
+        const chatbotSend = document.getElementById("chatbot-send");
+        const chatbotToggle = document.getElementById("chatbot-toggle");
+
+        // Toggle Chatbot Visibility
+        chatbotToggle.addEventListener("click", () => {
+            chatbotContainer.classList.toggle("hidden");
+        });
+
+        // Send Message on Button Click
+        chatbotSend.addEventListener("click", sendMessage);
+        chatbotInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+
+            // Add User Message
+            addMessage(message, "user-message");
+            chatbotInput.value = "";
+
+            // Process Query and Respond
+            setTimeout(() => processInventoryQuery(message), 500);
+        }
+
+        function addMessage(text, className) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `chat-message ${className}`;
+            messageDiv.textContent = text;
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function formatMaterialDetails(material) {
+            return `Material Details:
+- ID: ${material.material_id}
+- Name: ${material.material_name}
+- Expiry Date: ${material.expiry_date}
+- Batch Number: ${material.batch_number}
+- Supplier: ${material.supplier_details}`;
+        }
+
+        function processInventoryQuery(query) {
+            const lowerQuery = query.toLowerCase();
+
+            // Extract Material ID
+            const materialIdMatch = lowerQuery.match(/(?:material|id|item)\s*(\w+)/i);
+            const materialId = materialIdMatch ? materialIdMatch[1] : null;
+
+            // Extract Date (e.g., "2025-12-31")
+            const dateMatch = lowerQuery.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+            const date = dateMatch ? dateMatch[1] : null;
+
+            // Extract Quoted Text (e.g., "ABC" in "material with name 'ABC'")
+            const quotedMatch = lowerQuery.match(/['"]([^'"]+)['"]/);
+            const quotedText = quotedMatch ? quotedMatch[1] : null;
+
+            // Material ID Query
+            if (materialId && (lowerQuery.includes("material") || lowerQuery.includes("id") || lowerQuery.includes("item"))) {
+                getMaterial(materialId, (material) => {
+                    if (material) {
+                        if (lowerQuery.includes("expiry") || lowerQuery.includes("expire") || lowerQuery.includes("date") ||
+                            lowerQuery.includes("name") || lowerQuery.includes("batch") || lowerQuery.includes("supplier")) {
+                            addMessage(formatMaterialDetails(material), "bot-message");
+                        } else {
+                            addMessage(formatMaterialDetails(material), "bot-message");
+                        }
+                    } else {
+                        addMessage(`Material ${materialId} not found in the inventory. Please check the ID or ask about another material.`, "bot-message");
+                    }
+                });
+                return;
+            }
+
+            // Search by Name
+            if (lowerQuery.includes("name") && quotedText) {
+                getAllMaterials((materials) => {
+                    const matchedMaterial = materials.find(m => m.material_name.toLowerCase() === quotedText.toLowerCase());
+                    if (matchedMaterial) {
+                        addMessage(formatMaterialDetails(matchedMaterial), "bot-message");
+                    } else {
+                        addMessage(`No material found with the name "${quotedText}".`, "bot-message");
+                    }
+                });
+                return;
+            }
+
+            // Search by Batch Number
+            if (lowerQuery.includes("batch") && quotedText) {
+                getAllMaterials((materials) => {
+                    const matchedMaterial = materials.find(m => m.batch_number.toLowerCase() === quotedText.toLowerCase());
+                    if (matchedMaterial) {
+                        addMessage(formatMaterialDetails(matchedMaterial), "bot-message");
+                    } else {
+                        addMessage(`No material found with batch number "${quotedText}".`, "bot-message");
+                    }
+                });
+                return;
+            }
+
+            // Search by Supplier
+            if (lowerQuery.includes("supplier") && quotedText) {
+                getAllMaterials((materials) => {
+                    const supplierMaterials = materials.filter(m => m.supplier_details.toLowerCase().includes(quotedText.toLowerCase()));
+                    if (supplierMaterials.length > 0) {
+                        let response = `Materials from supplier "${quotedText}":\n`;
+                        supplierMaterials.forEach(m => {
+                            response += formatMaterialDetails(m) + "\n";
+                        });
+                        addMessage(response, "bot-message");
+                    } else {
+                        addMessage(`No materials found from supplier "${quotedText}".`, "bot-message");
+                    }
+                });
+                return;
+            }
+
+            // Count by Supplier
+            if (lowerQuery.includes("how many") && lowerQuery.includes("supplier") && quotedText) {
+                getAllMaterials((materials) => {
+                    const supplierCount = materials.filter(m => m.supplier_details.toLowerCase().includes(quotedText.toLowerCase())).length;
+                    addMessage(`There are ${supplierCount} materials from supplier "${quotedText}".`, "bot-message");
+                });
+                return;
+            }
+
+            // Materials Expiring Before a Date
+            if (lowerQuery.includes("expir") && date) {
+                getAllMaterials((materials) => {
+                    const expiringMaterials = materials.filter(m => m.expiry_date < date);
+                    if (expiringMaterials.length > 0) {
+                        let response = `Materials expiring before ${date}:\n`;
+                        expiringMaterials.forEach(m => {
+                            response += formatMaterialDetails(m) + "\n";
+                        });
+                        addMessage(response, "bot-message");
+                    } else {
+                        addMessage(`No materials are expiring before ${date}.`, "bot-message");
+                    }
+                });
+                return;
+            }
+
+            // General Inventory Queries
+            if (lowerQuery.includes("list") || lowerQuery.includes("all") || lowerQuery.includes("inventory")) {
+                getAllMaterials((materials) => {
+                    if (materials.length > 0) {
+                        let response = "Here’s the current inventory list:\n";
+                        materials.forEach(m => {
+                            response += `- ${m.material_id}: ${m.material_name} (Expires: ${m.expiry_date})\n`;
+                        });
+                        addMessage(response, "bot-message");
+                    } else {
+                        addMessage("The inventory is currently empty.", "bot-message");
+                    }
+                });
+                return;
+            }
+
+            if (lowerQuery.includes("how many") || lowerQuery.includes("count")) {
+                getAllMaterials((materials) => {
+                    addMessage(`There are ${materials.length} items in the inventory.`, "bot-message");
+                });
+                return;
+            }
+
+            if (lowerQuery.includes("expired") || lowerQuery.includes("due")) {
+                const today = new Date().toISOString().split('T')[0];
+                getAllMaterials((materials) => {
+                    const expired = materials.filter(m => m.expiry_date < today);
+                    if (expired.length > 0) {
+                        let response = "The following items have expired:\n";
+                        expired.forEach(m => {
+                            response += formatMaterialDetails(m) + "\n";
+                        });
+                        addMessage(response, "bot-message");
+                    } else {
+                        addMessage("No items have expired as of today.", "bot-message");
+                    }
+                });
+                return;
+            }
+
+            // Fallback Response
+            addMessage("I'm not sure what you mean. Try asking about a specific material (e.g., 'Tell me about material123', 'What’s the expiry date of XYZ?', 'Find material with name \"ABC\"') or use queries like 'list all materials', 'how many items', 'materials from supplier \"XYZ\"', or 'materials expiring before 2025-12-31'.", "bot-message");
+        }
+    </script>
+</body>
+</html>
